@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow Tales - Horror Stories</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+
+        :root {
+            --primary-color: #8b0000;
+            --secondary-color: #5a0000;
+            --background-color: #0a0a0a;
+            --text-color: #e0e0e0;
+            --card-bg: rgba(20, 20, 20, 0.8);
+            --section-bg: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="light"] {
+            --primary-color: #dc143c;
+            --secondary-color: #b22222;
+            --background-color: #f5f5f5;
+            --text-color: #333333;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --section-bg: rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            background: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .app-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        .app-title {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 30px;
+            color: var(--primary-color);
+            text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color);
+            letter-spacing: 3px;
+            position: relative;
+        }
+
+        .app-title::after {
+            content: "";
+            display: block;
+            width: 300px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            margin: 10px auto;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .active {
+            display: block;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            background: var(--card-bg);
+            border: 1px solid var(--primary-color);
+            border-radius: 25px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .nav-tab.active {
+            background: var(--primary-color);
+            transform: scale(1.05);
+        }
+
+        .nav-tab:hover {
+            background: var(--primary-color);
+            transform: scale(1.05);
+        }
+
+        /* Story Cards */
+        .story-menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .story-card {
+            background: var(--card-bg);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .story-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(139, 0, 0, 0.4);
+            border-color: var(--primary-color);
+        }
+
+        .story-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .story-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .story-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+            flex: 1;
+        }
+
+        .favorite-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 5px;
+        }
+
+        .favorite-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .favorite-btn.favorited {
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffd700;
+        }
+
+        .story-card p {
+            font-size: 0.95rem;
+            color: var(--text-color);
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+
+        .story-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        /* Story Content */
+        .story-content {
+            background: var(--card-bg);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 40px;
+            max-height: 65vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .story-content h2 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            text-shadow: 0 0 10px rgba(178, 34, 34, 0.5);
+            line-height: 1.3;
+        }
+
+        .story-text {
+            line-height: 1.8;
+            font-size: 1.1rem;
+            text-align: justify;
+        }
+
+        .story-text p {
+            margin-bottom: 20px;
+            text-indent: 2em;
+        }
+
+        /* Settings */
+        .settings-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+        }
+
+        .setting-group {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: var(--section-bg);
+            border-radius: 10px;
+        }
+
+        .setting-group h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .setting-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px 0;
+        }
+
+        .setting-label {
+            flex: 1;
+            font-weight: bold;
+        }
+
+        select, button {
+            padding: 8px 15px;
+            border: 1px solid var(--primary-color);
+            border-radius: 5px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 25px;
+            background: #666;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+
+        .toggle-switch::before {
+            content: "";
+            position: absolute;
+            width: 21px;
+            height: 21px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary-color);
+        }
+
+        .toggle-switch.active::before {
+            left: 27px;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--primary-color);
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background: var(--primary-color);
+            transform: scale(1.05);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+        }
+
+        .voice-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .voice-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+        }
+
+        .voice-btn:hover {
+            background: var(--secondary-color);
+            transform: scale(1.1);
+        }
+
+        /* Voice Over Status */
+        .voice-status {
+            text-align: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: var(--section-bg);
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* Decorations */
+        .decoration {
+            position: absolute;
+            opacity: 0.1;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .skull { top: 10%; right: 5%; font-size: 5rem; }
+        .bat { bottom: 10%; left: 5%; font-size: 4rem; animation: float 5s ease-in-out infinite; }
+        .spider { top: 40%; left: 10%; font-size: 3rem; }
+        .candle { bottom: 20%; right: 10%; font-size: 4rem; }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+        }
+
+        /* Scrollbar */
+        .story-content::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .story-content::-webkit-scrollbar-track {
+            background: var(--section-bg);
+            border-radius: 5px;
+        }
+
+        .story-content::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-title { font-size: 2rem; }
+            .story-menu { grid-template-columns: 1fr; }
+            .story-content { padding: 20px; }
+            .nav-tabs { gap: 10px; }
+            .nav-tab { padding: 10px 15px; font-size: 0.9rem; }
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1 class="app-title">SHADOW TALES</h1>
+        
+        <!-- Decorations -->
+        <div class="decoration skull">💀</div>
+        <div class="decoration bat">🦇</div>
+        <div class="decoration spider">🕷️</div>
+        <div class="decoration candle">🕯️</div>
+        
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="showScreen('stories-screen')">📖 All Stories</div>
+            <div class="nav-tab" onclick="showScreen('favorites-screen')">⭐ Favorites</div>
+            <div class="nav-tab" onclick="showScreen('settings-screen')">⚙️ Settings</div>
+        </div>
+        
+        <!-- All Stories Screen -->
+        <div id="stories-screen" class="screen active">
+            <div class="story-menu" id="all-stories">
+                <!-- Stories will be loaded here -->
+            </div>
+        </div>
+        
+        <!-- Favorites Screen -->
+        <div id="favorites-screen" class="screen">
+            <div class="story-menu" id="favorites-list">
+                <!-- Favorites will be loaded here -->
+            </div>
+        </div>
+        
+        <!-- Story Reader Screen -->
+        <div id="story-screen" class="screen">
+            <div class="voice-status" id="voice-status">
+                🎙️ Auto voice-over ready - Story will play automatically
+            </div>
+            <div class="story-content">
+                <h2 id="story-title">Story Title</h2>
+                <div class="story-text" id="story-text">
+                    <!-- Story content will be inserted here -->
+                </div>
+            </div>
+            
+            <div class="voice-controls">
+                <button class="voice-btn" onclick="toggleVoice()" id="voice-toggle">⏸️</button>
+                <button class="voice-btn" onclick="stopVoice()">⏹️</button>
+                <button class="voice-btn" onclick="skipForward()">⏩</button>
+                <button class="voice-btn" onclick="skipBackward()">⏪</button>
+            </div>
+            
+            <div class="controls">
+                <button class="btn" onclick="backToMenu()">← Back to Menu</button>
+                <button class="btn btn-primary" onclick="toggleFavorite()" id="favorite-toggle">⭐ Add to Favorites</button>
+            </div>
+        </div>
+        
+        <!-- Settings Screen -->
+        <div id="settings-screen" class="screen">
+            <div class="settings-container">
+                <div class="setting-group">
+                    <h3>🎨 Appearance</h3>
+                    <div class="setting-option">
+                        <span class="setting-label">Dark Mode</span>
+                        <div class="toggle-switch active" onclick="toggleTheme()"></div>
+                    </div>
+                    <div class="setting-option">
+                        <span class="setting-label">Font Size</span>
+                        <select onchange="changeFontSize(this.value)">
+                            <option value="small">Small</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="large">Large</option>
+                            <option value="xlarge">Extra Large</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="setting-group">
+                    <h3>🔊 Voice Features</h3>
+                    <div class="setting-option">
+                        <span class="setting-label">Auto Voice-Over</span>
+                        <div class="toggle-switch active" onclick="toggleSetting('autoVoice')"></div>
+                    </div>
+                    <div class="setting-option">
+                        <span class="setting-label">Voice Speed</span>
+                        <select onchange="changeVoiceSpeed(this.value)">
+                            <option value="0.8">Slow</option>
+                            <option value="0.9" selected>Normal</option>
+                            <option value="1.0">Fast</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="setting-group">
+                    <h3>⚡ Performance</h3>
+                    <div class="setting-option">
+                        <span class="setting-label">Animations</span>
+                        <div class="toggle-switch active" onclick="toggleSetting('animations')"></div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn" onclick="resetSettings()">🔄 Reset Settings</button>
+                    <button class="btn btn-primary" onclick="showScreen('stories-screen')">💾 Save & Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Complete Stories Data with Long, Detailed Content
+        const stories = {
+            shadow: {
+                title: "The Shadow That Grew In My Room",
+                content: `
+                    <p>The first time I noticed the shadow, I was twelve years old. It was a Tuesday evening, and I was lying in bed trying to finish my math homework. The room smelled faintly of the lavender spray my mother used, but beneath that pleasant scent was something else—something earthy and damp, like soil after a heavy rain or the inside of my grandfather's coffin when they lowered him into the ground the previous spring.</p>
+                    
+                    <p>At first, the shadow was no larger than a dinner plate, a dark patch in the far corner of my bedroom that seemed to drink the light from my bedside lamp. I thought it was a water stain from a leaky pipe, or perhaps mold growing in the walls. But when I touched the wall, it was dry and cool, and the shadow seemed to retreat from my fingertips as if alive.</p>
+                    
+                    <p>My parents dismissed it as childhood imagination. "You've always had an active mind, Liam," my father said, ruffling my hair. "It's just a shadow from the oak tree outside." But the oak tree had been cut down months ago, and my window faced east, away from the moonlight.</p>
+                    
+                    <p>I began documenting the shadow's growth in my school notebook. Day one: four inches across. Day two: six inches. Day three: nine. It was expanding at an exponential rate, a dark fungus creeping across the pale yellow wallpaper of my childhood bedroom. By the end of the second week, it had reached the size of a trash can lid, and it had begun to change in texture. No longer flat, it now had depth—a swirling, liquid darkness that seemed to pulse with a slow, rhythmic breathing.</p>
+                    
+                    <p>If I stared at it for too long, shapes would emerge from the darkness: faces contorted in silent screams, hands reaching out as if from underwater, patterns that resembled ancient symbols I'd never seen before. And the whispers started—not audible sounds that could be recorded, but thoughts that appeared fully formed in my mind. Promises of knowledge, of power, of understanding the secrets that lay between the cracks of reality.</p>
+                    
+                    <p>"Come closer," the whispers seemed to say during those long, sleepless nights. "We have such wonders to show you. Worlds within worlds, truths your kind has forgotten."</p>
+                    
+                    <p>I started sleeping with every light in my room blazing. The electric bill tripled that month, and my parents were furious, but I didn't care. The light kept the shadow contained—it didn't shrink, but it stopped growing, as if waiting patiently in the corner, biding its time.</p>
+                    
+                    <p>Then came the night of the thunderstorm. The power went out around midnight, plunging my room into absolute darkness. I woke to that smell—wet earth, stronger than ever, so thick I could taste the decay on my tongue. I fumbled for the emergency flashlight I kept under my pillow, my hands shaking so badly I could barely grip it.</p>
+                    
+                    <p>When I finally managed to turn it on, the beam swept across my room and landed on the shadow. It had grown exponentially in the darkness, spreading from wall to wall, floor to ceiling. It was no longer just on the wall—it had spilled onto the floor, a pool of absolute blackness that seemed to drink the light from my flashlight, making the beam dim and weak.</p>
+                    
+                    <p>And standing in the middle of it was a figure.</p>
+                    
+                    <p>It was tall and impossibly thin, composed of the same swirling darkness as the shadow. It had no discernible features—no face, no clothing, just a human-like shape that seemed to be made of concentrated nothingness. Yet I could feel it looking at me, its attention like a physical weight pressing down on my chest, making it hard to breathe.</p>
+                    
+                    <p>"Liam," it said. Its voice wasn't a sound that traveled through air, but something that formed directly in my mind—the rustle of dry leaves skittering across pavement, the cracking of ancient ice, the whisper of something that should have stayed buried.</p>
+                    
+                    <p>I was frozen, unable to speak or move, a rabbit caught in the gaze of a predator. I could only watch as it took a step toward me. Where its feet—if it had feet—touched the floor, the darkness spread like ink soaking into paper, consuming the wooden planks and leaving behind something that wasn't wood, wasn't floor, wasn't anything from this world.</p>
+                    
+                    <p>"You've been watching me," it said, taking another step. The room seemed to grow colder with each movement. "I've been watching you too. I've watched you sleep, watched you dream, watched the fragile light of your consciousness flicker in the dark."</p>
+                    
+                    <p>It was at the foot of my bed now. The smell of wet earth was so strong I could feel it coating my throat, my lungs. I could taste the dirt and decay, the memory of graves and things that should have stayed underground.</p>
+                    
+                    <p>"Don't be afraid," it whispered, leaning closer. Its form seemed to ripple and shift, never holding one shape for more than a moment. "I won't hurt you. I just want to show you my home. I want you to understand what waits in the spaces between."</p>
+                    
+                    <p>It reached out a hand—a long, slender thing made of shifting shadows and impossible angles—and touched my forehead.</p>
+                    
+                    <p>And I saw.</p>
+                    
+                    <p>I saw a world of endless darkness, but not the empty void I'd imagined. This darkness was alive, teeming with things that had no names, concepts that had no words in any human language. I saw civilizations that rose and fell in the spaces between heartbeats, truths that would shatter a human mind to comprehend, beauty in the emptiness that brought tears to my eyes. I saw things that had been here long before the first single-celled organism drifted in Earth's primordial seas, things that would be here long after our sun burned out and our planet was dust.</p>
+                    
+                    <p>I saw the peace in the silence, the power in the darkness, the freedom in being unbound by form or time or the petty concerns of mortal existence.</p>
+                    
+                    <p>Then it was gone. The vision, the figure, the shadow in the corner—all of it. My room was normal again, bathed in the gray light of dawn. The storm had passed, and birds were singing outside my window. The only evidence that anything had happened was the faint smell of wet earth that lingers in my memory, and the knowledge buried deep in my mind.</p>
+                    
+                    <p>I thought it was over. I truly believed that whatever had visited me that night was gone forever, that I could return to a normal life.</p>
+                    
+                    <p>But it wasn't over.</p>
+                    
+                    <p>Now, twenty years later, I'm a successful architect. I design buildings with as few shadows as possible—bright, open spaces filled with natural light, structures that leave no room for dark corners or hidden spaces. My colleagues call it an aesthetic choice, a preference for modern minimalism. They don't understand that I'm building fortresses against the dark.</p>
+                    
+                    <p>I haven't seen the shadow since that night. But sometimes, when I'm in a dark room, or when the power goes out, or when I wake from a particularly vivid dream, I catch a whiff of wet earth. And I remember the things it showed me.</p>
+                    
+                    <p>Sometimes, when the world becomes too loud, too bright, too demanding, I find myself standing in the darkest corner of my apartment, staring at the wall. And I whisper back into the silence, my voice barely audible, filled with equal parts fear and longing.</p>
+                    
+                    <p>"Show me more."</p>
+                `,
+                length: "45min",
+                category: "Psychological"
+            },
+            whispering: {
+                title: "The Whispering Walls",
+                content: `
+                    <p>The diary was bound in cracked leather the color of dried blood, and it smelled of dust and forgotten things. I found it tucked away in the farthest corner of the attic, hidden beneath floorboards that groaned like dying men when I pried them up. The first page was dated March 15, 1932, and the handwriting was elegant, flowing cursive that spoke of a different time.</p>
+                    
+                    <p>"They're in the walls now," the final entry read, the ink blurred as if by tears or something else. "I can hear them whispering my name. I've boarded up my bedroom door, but I know it won't hold them for long. If anyone finds this, get out. Don't listen to them. Don't let them in."</p>
+                    
+                    <p>I laughed when I read it, a nervous sound that echoed in the empty attic. Just the ramblings of some frightened girl from nearly a century ago, I told myself. The kind of thing you'd expect to find in an old Victorian house like this one.</p>
+                    
+                    <p>My wife Sarah had fallen in love with the house the moment she saw it. "It has so much character, David," she'd said, running her hands along the ornate woodwork in the parlor. "Can't you just imagine the stories these walls could tell?"</p>
+                    
+                    <p>I could, but not the kind she meant. The house stood at the end of Elm Street, a massive Victorian structure with turrets that clawed at the sky and wraparound porches that seemed to embrace the darkness. The real estate agent had been unusually eager to sell, dropping the price three times before we even made an offer. "The previous owners left in a bit of a hurry," she'd said, not meeting our eyes.</p>
+                    
+                    <p>They'd left everything behind—furniture, dishes, clothes still hanging in closets. It was in Emily's closet that I found the box containing the diary, along with yellowed photographs of a serious-looking girl with dark eyes and a mouth set in a firm line.</p>
+                    
+                    <p>Emily's entries started out normal enough—complaints about school, crushes on boys, arguments with her parents. But as I read further, the tone changed. She started writing about noises in the walls, scratching sounds that grew louder at night. Then came the whispers—first indistinct, then forming words, then names.</p>
+                    
+                    <p>The final entry was dated exactly eighty-nine years ago today. I told myself it was coincidence, but the hairs on the back of my neck stood up anyway.</p>
+                    
+                    <p>That first night in the house, I lay awake listening to the sounds old houses make—the creaking of settling wood, the rustle of branches against windows, the distant hum of the refrigerator. And then I heard it—a whisper so faint I almost missed it, coming from the wall beside our bed.</p>
+                    
+                    <p>"David..."</p>
+                    
+                    <p>I sat bolt upright, my heart hammering against my ribs. Sarah slept soundly beside me, her breathing deep and regular. I told myself it was the wind, the house settling, anything but what my racing mind was suggesting.</p>
+                    
+                    <p>The next day, I tried to find out more about the previous owners. The real estate agent was evasive, but I managed to get an address for Emily's last living relative from some old documents I found in the basement.</p>
+                    
+                    <p>Mrs. Henderson lived in a small apartment on the other side of town, a cramped space that smelled of mothballs and regret. She was in her nineties, with eyes that had seen too much and hands that trembled constantly.</p>
+                    
+                    <p>When I mentioned the diary, she broke down, great heaving sobs that shook her frail body. "We tried to warn people," she said when she could speak again. "But no one would listen. They took our Emily. They're still in that house. They're always hungry."</p>
+                    
+                    <p>She wouldn't say any more, just showed me to the door with hands that shook so badly she could barely turn the knob.</p>
+                    
+                    <p>That night, the whispers were louder. "David... we know you're listening..."</p>
+                    
+                    <p>I got out of bed and pressed my ear to the wall. The whispering stopped. For a long moment, there was only silence. Then, from directly on the other side of the wall, a voice spoke clearly: "Let us in, David."</p>
+                    
+                    <p>I stumbled backward, falling onto the bed and waking Sarah. "What's wrong?" she asked, her voice thick with sleep.</p>
+                    
+                    <p>"We have to leave," I said, my own voice trembling. "Now. Tonight."</p>
+                    
+                    <p>But as I spoke those words, the whispering started again—this time from all around us, from every wall in the room. Dozens of voices, whispering in perfect unison: "Stay with us, David. Stay forever."</p>
+                    
+                    <p>The wall beside our bed began to bulge inward, the vintage wallpaper stretching and tearing like skin. Something pale and long-fingered pressed against the paper from the other side, and I realized with dawning horror that the voices weren't coming from people in the walls.</p>
+                    
+                    <p>They were the walls.</p>
+                    
+                    <p>Sarah screamed as a hand burst through the wallpaper, its fingers twitching and grasping. Then another hand appeared, and another, until the wall was a writhing mass of pale limbs reaching for us.</p>
+                    
+                    <p>The whispers became a chorus, a chant that filled the room: "Join us. Join us. Join us."</p>
+                    
+                    <p>I grabbed Sarah's hand and pulled her toward the door, but it was locked. The windows were sealed shut, as if they'd been painted over from the outside. We were trapped.</p>
+                    
+                    <p>As the things from the walls closed in around us, I remembered the last line of Emily's diary: "Don't let them in."</p>
+                    
+                    <p>But it was too late. We already had.</p>
+                    
+                    <p>The hands pulled us toward the wall, their touch cold and impossibly strong. Sarah was screaming, a high, terrified sound that was cut off abruptly as the wall swallowed her whole. I fought, I kicked, I screamed, but it was useless.</p>
+                    
+                    <p>The last thing I saw before the darkness took me was the wall opening like a mouth, and the last thing I heard was the whisper that has been my constant companion ever since.</p>
+                    
+                    <p>"Welcome home, David."</p>
+                    
+                    <p>Now I'm part of the house, my consciousness spread through the walls like rot. I watch the new family that moved in last week. I listen to their conversations, their laughter, their dreams. And I whisper to them in the dark, adding my voice to the chorus that has been growing for nearly a century.</p>
+                    
+                    <p>Sometimes, when the moon is full and the house is quiet, I think about Emily and the warning she tried to leave behind. But mostly, I just whisper.</p>
+                    
+                    <p>Because the walls are always hungry, and we're always listening.</p>
+                `,
+                length: "52min",
+                category: "Haunting"
+            },
+            midnight: {
+                title: "The Midnight Shift",
+                content: `
+                    <p>The rule was simple, Frank had told me on my first day. "Never answer the phone if it rings at 3:33 AM." He was a grizzled man in his sixties with haunted eyes and hands that shook when he lit his cigarettes. "It's not a real call," he'd said, not meeting my eyes. "Bad things happen to those who answer."</p>
+                    
+                    <p>I'd laughed it off, of course. At twenty-two, I knew everything, and what I didn't know, I was sure I could handle. The midnight shift at the old textile factory paid almost double the day rate, and I needed the money for engineering school. So what if the place gave me the creeps? I could handle a few ghost stories.</p>
+                    
+                    <p>The factory had closed its doors for good in 1987, but the security contract remained, a relic from a time when the machinery inside was worth protecting. Now it was just me, the ghosts of industry past, and eight hours of blessed silence to study in.</p>
+                    
+                    <p>For the first two months, nothing happened. The phone never rang at 3:33 AM, or any other time for that matter. I began to think Frank was just trying to scare the new guy, maybe get a laugh at my expense.</p>
+                    
+                    <p>Then came the night I brought the flask. It was my friend Mike's birthday, and I'd had a few drinks before my shift. By 2 AM, the whiskey was warming my veins and the calculus textbook in front of me was starting to blur. By 3 AM, I was pleasantly drunk and bored out of my mind.</p>
+                    
+                    <p>When the phone rang at exactly 3:33 AM, the sound was so unexpected I jumped, spilling whiskey on my pants. I stared at the old rotary phone on the wall, its black plastic gleaming in the dim light of the security office.</p>
+                    
+                    <p>What's the worst that could happen? I thought, the whiskey making me brave. Or stupid.</p>
+                    
+                    <p>I picked up the receiver. "Security, this is Mark."</p>
+                    
+                    <p>There was silence on the other end, the kind of silence that feels heavy, expectant. Then a small, quiet voice: "I'm outside your office."</p>
+                    
+                    <p>The line went dead. A prank call, I told myself. Kids messing around. But something about that voice... it was too calm, too measured. And it had known exactly where I was.</p>
+                    
+                    <p>I looked at the bank of security monitors. The camera outside my office showed nothing but an empty hallway. Camera two: the main weaving room, silent looms standing like skeletons. Camera three: the dyeing facility, vats empty and dark. Camera four...</p>
+                    
+                    <p>I leaned closer. Camera four showed the main entrance, and standing there was a child. A boy, maybe eight or nine years old, dressed in clothing that looked decades out of date. Short pants, suspenders, a cap pulled low over his eyes. He was staring directly into the camera, his face pale and expressionless.</p>
+                    
+                    <p>As I watched, the boy on the monitor turned and started walking down the hallway toward my office. My blood ran cold. I switched to the hallway camera just in time to see him pass by, his footsteps making no sound on the concrete floor.</p>
+                    
+                    <p>Then I heard a soft tapping at my office door.</p>
+                    
+                    <p>I slowly turned toward the reinforced glass window beside the door. Pressed against it was a pale face—the same boy from the monitor. His eyes were dark, empty pools. His mouth moved, forming silent words I couldn't hear.</p>
+                    
+                    <p>The door handle began to jiggle.</p>
+                    
+                    <p>I've been hiding under my desk for what feels like hours now. The tapping hasn't stopped. Sometimes it's soft, almost polite. Other times it's frantic, angry. And sometimes there are multiple sets of hands tapping, as if he's brought friends.</p>
+                    
+                    <p>The phone is ringing again. It's always 3:33 AM now. I don't answer anymore, but sometimes I can hear voices on the other end anyway. Children's voices, whispering my name.</p>
+                    
+                    <p>Frank never mentioned what happens if they get inside. But I think I'm about to find out.</p>
+                    
+                    <p>The door is starting to splinter.</p>
+                `,
+                length: "38min",
+                category: "Supernatural"
+            },
+            playground: {
+                title: "The Empty Playground",
+                content: `
+                    <p>The playground had been empty for twenty years, ever since the incident. The town council had tried to tear it down three times, but each time something stopped them—budget cuts, sudden storms, equipment failures. So it remained, a rusting monument to a tragedy everyone wanted to forget but no one could.</p>
+                    
+                    <p>I was seven when it happened. Tommy Miller, my best friend, vanished from the swings during a birthday party. One minute he was there, pumping his legs to go higher, laughing that infectious laugh of his. The next minute, the swing was empty, still moving back and forth as if he'd just jumped off. But Tommy never jumped. He loved swinging too much.</p>
+                    
+                    <p>The police searched for weeks. They dragged the pond, combed the woods, interviewed every resident of our small town. They found nothing. No body, no evidence, no witnesses. It was as if the earth had opened up and swallowed Tommy whole.</p>
+                    
+                    <p>His mother went mad with grief. She would sit on that same swing every night, rocking back and forth, calling his name into the darkness. "Tommy! Time to come home, baby! Mommy's here!" Her voice became part of the town's soundtrack, a haunting melody of loss that echoed through the streets.</p>
+                    
+                    <p>Then she disappeared too. They found her purse on the swing, but no sign of her. After that, the playground was officially closed. Chains went up around it, warning signs were posted, and parents told their children to stay away.</p>
+                    
+                    <p>But children are curious, and rules are made to be broken. Over the years, other kids vanished from near the playground. Not from inside—no one was brave enough to climb the fence—but from the surrounding area. A boy walking his dog too close to the perimeter. A girl chasing a ball that rolled toward the fence. They'd be there one moment, gone the next.</p>
+                    
+                    <p>The town called it the "Empty Playground Curse." They said the playground was hungry, that it demanded sacrifices to remain quiet. They said if you listened carefully on windy nights, you could still hear Tommy's mother calling for him, her voice carried on the breeze.</p>
+                    
+                    <p>I'm thirty-two now, a journalist working for a big city newspaper. I came back to my hometown to write about the anniversary—twenty-five years since Tommy vanished. I told my editor I wanted closure, to put the ghosts of my childhood to rest. That was only partly true.</p>
+                    
+                    <p>The truth is, I've never stopped seeing Tommy's face in my dreams. I've never stopped hearing his laughter, or the way he'd say my name when he had a secret to share. And I've never stopped feeling guilty.</p>
+                    
+                    <p>Because I was the last person to see him before he disappeared.</p>
+                    
+                    <p>There's something I never told the police, something I've carried with me all these years. When Tommy was on that swing, just before he vanished, he looked at me with wide, frightened eyes and said, "The man in the sandbox is watching us."</p>
+                    
+                    <p>I laughed it off. "There's no one in the sandbox, Tommy. You're being silly."</p>
+                    
+                    <p>But he insisted. "He's right there! Can't you see him? He's smiling at me."</p>
+                    
+                    <p>I looked at the empty sandbox, saw nothing but sand and a forgotten plastic shovel, and went back to eating my birthday cake. A minute later, Tommy was gone.</p>
+                    
+                    <p>Last night, I climbed the fence. The metal was cold and rough under my hands, the chains rattling like bones as I pulled myself over. The playground was exactly as I remembered it, frozen in time. The swings still moved in the breeze, the merry-go-round was still rusted in place, the slide still ended in the same patch of worn grass.</p>
+                    
+                    <p>And the sandbox was still there, in the far corner.</p>
+                    
+                    <p>I walked toward it, my heart pounding in my chest. The sand was pale in the moonlight, undisturbed except for a single set of small footprints leading from the edge to the center, where they simply stopped.</p>
+                    
+                    <p>I stood at the edge of the sandbox, staring at those footprints. And that's when I heard it—a child's laughter, coming from right behind me.</p>
+                    
+                    <p>I spun around, but there was no one there. Just the empty swings, moving back and forth as if pushed by invisible hands.</p>
+                    
+                    <p>"Tommy?" I whispered, my voice trembling.</p>
+                    
+                    <p>The laughter came again, closer this time. It was definitely Tommy's laugh—I'd know it anywhere. But there was something wrong with it, something hollow and ancient that didn't belong to a seven-year-old boy.</p>
+                    
+                    <p>"I've been waiting for you," a voice said from the sandbox.</p>
+                    
+                    <p>I turned back slowly, my blood turning to ice in my veins. The sandbox was no longer empty. A man sat in the center, cross-legged, his skin the color and texture of dry sand. His eyes were black pits, his smile too wide for his face.</p>
+                    
+                    <p>"You can see me now," he said, his voice like the rustle of dead leaves. "That's good. I've been wanting to talk to you for a long time."</p>
+                    
+                    <p>I tried to run, but my feet were rooted to the spot. I tried to scream, but no sound came out.</p>
+                    
+                    <p>"Don't be afraid," the sandman said, standing up. He was tall, impossibly tall, his head brushing against the low-hanging branches of the oak tree that shaded the sandbox. "Your friend Tommy is happy here. They're all happy here. We play such wonderful games together."</p>
+                    
+                    <p>He took a step toward me, and I saw that he left no footprints in the sand. "Would you like to play with us?"</p>
+                    
+                    <p>I shook my head, tears streaming down my face. I wanted to beg for my life, to promise him anything if he would just let me go.</p>
+                    
+                    <p>"It's not that kind of game," he said, as if reading my thoughts. "Once you're invited, you have to play."</p>
+                    
+                    <p>He reached out a hand made of shifting sand, and as his fingers brushed against my cheek, I felt myself dissolving, breaking apart into a million tiny particles.</p>
+                    
+                    <p>The last thing I heard was Tommy's laughter, joined by other children's voices—dozens of them, maybe hundreds. The laughter of all the children who had ever vanished from this playground.</p>
+                    
+                    <p>Now I'm part of the sandbox too. I watch the children who come to the fence, the brave ones who dare each other to touch the rusted metal. I whisper to them in their dreams, inviting them to come play with us.</p>
+                    
+                    <p>And sometimes, when the moon is full and the wind is just right, you can hear our laughter drifting through the town—an entire chorus of lost children, forever playing in the empty playground.</p>
+                    
+                    <p>We're always looking for new playmates. Would you like to join our game?</p>
+                `,
+                length: "35min",
+                category: "Urban Legend"
+            },
+            photo: {
+                title: "The Photo That Ages",
+                content: `
+                    <p>I found the photograph tucked between the pages of a library book about local history. It showed a group of children standing in front of our town's old schoolhouse, their faces serious and unsmiling, their clothing dating from the early 1900s. What caught my eye was the boy in the center—he looked exactly like my son, Ben. Same sandy hair, same freckles across the nose, same slight gap between his front teeth.</p>
+                    
+                    <p>I showed it to Ben when I got home. "Look at this," I said, pointing to the boy. "He could be your twin."</p>
+                    
+                    <p>Ben studied the photo, his brow furrowed. "That's weird, Mom. He does look like me." He pointed to a girl in the back row. "And she looks like Sarah from my class."</p>
+                    
+                    <p>I looked more closely, and he was right. The girl did resemble Sarah Johnson, who lived two streets over. It was uncanny, but I dismissed it as coincidence. After all, small towns often have families that have intermarried for generations, leading to similar features cropping up over time.</p>
+                    
+                    <p>I put the photo on our mantelpiece, thinking it would make an interesting conversation piece. That was my first mistake.</p>
+                    
+                    <p>The next morning, I noticed something different about the photo. The children's positions had shifted slightly. The boy who looked like Ben was now standing a little to the left, and his expression had changed from serious to what I could only describe as worried. The girl who looked like Sarah was partially hidden behind another child, as if trying to hide.</p>
+                    
+                    <p>I told myself I was imagining things, that I hadn't looked closely enough the first time. But the changes were so subtle yet so definite that I found myself staring at the photo for long minutes, trying to convince myself I was wrong.</p>
+                    
+                    <p>That night, I woke to the sound of children whispering. I followed the sound to the living room, where the photo sat on the mantel. As I approached, the whispering stopped. But when I looked at the photo, I saw that the children's mouths were slightly open, as if they had been speaking moments before.</p>
+                    
+                    <p>The next day, the changes were more obvious. The children looked older. Not by much—maybe a year or two—but definitely older. Their faces were longer, their limbs lankier. The clothing, which had been clearly from the early 1900s, now looked like it was from the 1920s.</p>
+                    
+                    <p>I showed it to my husband, Mark. "Look at this photo," I said. "Does it look different to you?"</p>
+                    
+                    <p>He studied it for a moment, then shrugged. "It's an old photo of some kids. What about it?"</p>
+                    
+                    <p>"Don't you see? The boy in the middle looks exactly like Ben!"</p>
+                    
+                    <p>He looked again, his expression turning thoughtful. "Yeah, he does a bit. Strange coincidence." He handed the photo back to me. "Probably just similar family features. You know how it is in small towns."</p>
+                    
+                    <p>He didn't see the changes. Or he didn't want to see them.</p>
+                    
+                    <p>That night, I dreamed of the children in the photo. They were standing in a gray, featureless space, and they were crying. "Help us," they whispered. "Don't let us grow up."</p>
+                    
+                    <p>I woke up sweating, the children's pleas echoing in my mind. I went to the living room and looked at the photo. The children were teenagers now, their faces showing the first signs of adulthood. Their clothing was from the 1940s. The boy who looked like Ben was staring directly at the camera, his eyes filled with a terrible sadness.</p>
+                    
+                    <p>I decided to research the photo. The library book I'd found it in was about the history of our town's school system. According to the records, the schoolhouse in the photo had burned down in 1912, killing seventeen children and two teachers. The fire had started in the basement and spread quickly, trapping the children on the upper floor. Their bodies were never recovered—the fire had been too hot, reducing everything to ash.</p>
+                    
+                    <p>Seventeen children. I counted the children in the photo. Seventeen.</p>
+                    
+                    <p>When I got home, Ben was waiting for me, his face pale. "Mom," he said, his voice trembling. "The boy in the photo talked to me today."</p>
+                    
+                    <p>My blood ran cold. "What do you mean he talked to you?"</p>
+                    
+                    <p>"I was looking at the photo, and he moved. He looked right at me and said, 'Soon you'll be with us.'"</p>
+                    
+                    <p>I ran to the mantelpiece and grabbed the photo. The children were young adults now, their faces showing the weariness of middle age. Their clothing was from the 1960s. The boy who looked like Ben was now a man in his forties, his hair starting to gray at the temples.</p>
+                    
+                    <p>And he was looking directly at me, his eyes filled with an ancient sorrow.</p>
+                    
+                    <p>"We've been waiting for you," he seemed to say. "All of us are waiting."</p>
+                    
+                    <p>I threw the photo in the trash, but the next morning it was back on the mantelpiece. I tried burning it, but the flames wouldn't touch it. I tried burying it in the backyard, but it was back in its place by nightfall.</p>
+                    
+                    <p>The children continued to age. They became elderly, their faces lined with wrinkles, their bodies stooped with age. The clothing updated to the present day. The boy who looked like Ben was now an old man, his face a roadmap of a long, hard life.</p>
+                    
+                    <p>Last night, the photo changed again. The children were gone, replaced by seventeen skeletons standing in front of the burned-out shell of the schoolhouse. And standing with them were two new figures—a man and a woman who looked exactly like me and Ben.</p>
+                    
+                    <p>This morning, Ben came into my room, his face ashen. "Mom," he whispered. "I had a dream about the fire. I was there. I felt the heat, I smelled the smoke, I heard the other children screaming."</p>
+                    
+                    <p>I looked at the photo on the mantel. It showed the schoolhouse as it had been before the fire, with seventeen children standing in front of it. But now there were nineteen children. Ben and I were among them, dressed in clothing from 1912.</p>
+                    
+                    <p>And in the background, barely visible in one of the upstairs windows, I could see the first flicker of flames.</p>
+                    
+                    <p>The photo is aging backwards now. The children are getting younger, returning to the age they were when they died. Ben and I are getting younger with them.</p>
+                    
+                    <p>I can feel the heat of the fire already. I can smell the smoke. I can hear the other children crying.</p>
+                    
+                    <p>Soon we'll all be together in the photo forever, trapped in the moment before the fire took us.</p>
+                    
+                    <p>And when someone new finds this photo, the cycle will begin again.</p>
+                `,
+                length: "40min",
+                category: "Time Horror"
+            },
+            doll: {
+                title: "The Porcelain Doll",
+                content: `
+                    <p>The doll arrived in a plain brown box with no return address. Its porcelain face was perfectly smooth, with delicate pink cheeks and glass eyes that seemed to follow you around the room. My daughter Lily named her Annabelle, after her favorite storybook character.</p>
+                    
+                    <p>At first, I thought nothing of it. Lily had always loved dolls, and this one was particularly beautiful. Its antique lace dress and perfectly styled hair made it look like a museum piece. But there was something unsettling about its smile—too knowing, too aware.</p>
+                    
+                    <p>The first strange occurrence happened three days after the doll arrived. I woke up to find it sitting in a different chair than where Lily had left it. I assumed my husband had moved it while cleaning, but he swore he hadn't touched it.</p>
+                    
+                    <p>Then the whispering started. Faint, childlike whispers that seemed to come from Lily's room at night. When I'd check on her, the whispers would stop, and Annabelle would be sitting exactly where we'd left her, her glass eyes gleaming in the moonlight.</p>
+                    
+                    <p>Lily started having nightmares. She'd wake up screaming about "the lady in the doll" who wanted to play forever. Her drawings changed from happy rainbows and flowers to dark, twisted images of dolls with too many teeth and eyes that bled black tears.</p>
+                    
+                    <p>One morning, I found scratches on Lily's arms—thin, precise lines that looked like they'd been made by tiny fingernails. When I asked her about them, she said Annabelle didn't like to be alone at night.</p>
+                    
+                    <p>I decided to get rid of the doll. I waited until Lily was at school, then wrapped Annabelle in a black garbage bag and drove her to the dump. But when I got home, she was back in Lily's room, sitting primly on the bed as if she'd never left.</p>
+                    
+                    <p>That night, I heard giggling coming from Lily's room. When I opened the door, I saw Annabelle sitting on Lily's chest, her porcelain hands pressed against my daughter's temples. Lily's eyes were wide with terror, but she couldn't move, couldn't speak.</p>
+                    
+                    <p>I snatched the doll away and threw it against the wall. It should have shattered, but it didn't. It landed perfectly on its feet, its head tilted at an impossible angle, its smile wider than before.</p>
+                    
+                    <p>"You can't get rid of me that easily," a voice whispered from the doll. It wasn't Lily's voice. It was ancient, cold, and filled with malice.</p>
+                    
+                    <p>I tried burning it, but the flames wouldn't touch it. I tried burying it in consecrated ground, but it was back by morning. I took it to a priest, but he said there was nothing he could do—the entity was too strong.</p>
+                    
+                    <p>Last night, Lily stopped being Lily. Her eyes are glassy now, her movements stiff and unnatural. She speaks with that ancient voice, and she calls me "the new mother."</p>
+                    
+                    <p>Annabelle sits on the shelf, watching us with her knowing smile. Sometimes I see her porcelain fingers twitch, and I know she's still in control.</p>
+                    
+                    <p>My daughter is gone, replaced by something that wears her skin like a costume. And I know it's only a matter of time before Annabelle needs a new vessel.</p>
+                    
+                    <p>She's looking at me right now, with my daughter's eyes, and she's smiling.</p>
+                    
+                    <p>"Would you like to play with us, Mommy?" she asks in that terrible ancient voice.</p>
+                    
+                    <p>I think I'll be joining them soon.</p>
+                `,
+                length: "32min",
+                category: "Possession"
+            },
+            forest: {
+                title: "The Hungry Forest",
+                content: `
+                    <p>They warned us not to go into the Blackwood after dark. The locals said the trees moved when you weren't looking, that paths disappeared behind you, that something ancient and hungry lived deep in the heart of the forest.</p>
+                    
+                    <p>We didn't believe them, of course. We were city kids, college students on a camping trip, convinced that rural superstitions were just stories to scare tourists.</p>
+                    
+                    <p>Our first mistake was ignoring the warning signs. Our second was splitting up when Mark thought he heard something calling his name.</p>
+                    
+                    <p>That was six hours ago. I've been wandering through these woods ever since, and nothing looks familiar. The trees seem closer together than they were before, their branches twisted into shapes that look almost human.</p>
+                    
+                    <p>The forest is too quiet. No birds, no insects, not even the sound of the wind. Just an oppressive silence that feels like it's pressing in on me from all sides.</p>
+                    
+                    <p>And I keep hearing things—whispers that seem to come from the trees themselves. They're calling my name, promising to lead me out if I just follow their voices.</p>
+                    
+                    <p>I found Mark's backpack an hour ago. It was torn to shreds, and there was blood on the straps. His phone was inside, smashed beyond repair. The last photo on it was a blurry shot of something pale and thin moving between the trees.</p>
+                    
+                    <p>My own phone died hours ago. The compass on my watch is spinning in circles, and the sun should have risen by now, but it's still pitch black.</p>
+                    
+                    <p>The whispers are getting louder. They're not just calling my name anymore—they're telling me to come closer, to join them in the dark.</p>
+                    
+                    <p>I saw Sarah a little while ago. Or at least, I saw something that looked like Sarah. It was standing between two trees, its head tilted at an impossible angle, its mouth stretched into a smile that showed too many teeth.</p>
+                    
+                    <p>"The forest is hungry," it said in Sarah's voice. "But it doesn't want to eat you. It wants to become you."</p>
+                    
+                    <p>Then it dissolved into a pile of leaves and twigs, and the whispers started laughing.</p>
+                    
+                    <p>I'm so tired. My legs feel like lead, and every time I blink, the trees seem to have moved closer.</p>
+                    
+                    <p>The ground is soft beneath my feet, too soft. When I look down, I see that I'm standing on what looks like flesh rather than soil. Veins pulse beneath the surface, and I can feel a slow, rhythmic heartbeat vibrating through my shoes.</p>
+                    
+                    <p>The forest isn't just alive—it's a single living organism, and I'm standing on its skin.</p>
+                    
+                    <p>The whispers are inside my head now. They're showing me things—memories that aren't mine, lives that ended in these woods, becoming part of the hungry forest.</p>
+                    
+                    <p>I understand now. The forest doesn't kill its victims. It absorbs them, takes their memories, their knowledge, their very essence, and adds them to its collective consciousness.</p>
+                    
+                    <p>That's what the whispers are—the voices of everyone who's ever been lost in these woods, now part of the forest forever.</p>
+                    
+                    <p>My legs won't move anymore. Roots are growing up around my ankles, holding me in place. I can feel them burrowing into my skin, connecting me to the forest's nervous system.</p>
+                    
+                    <p>The knowledge is flooding into my mind—centuries of memories, thousands of lives, all preserved in the trees, in the soil, in the very air I breathe.</p>
+                    
+                    <p>I'm not afraid anymore. How can I be? I'm becoming part of something ancient, something eternal.</p>
+                    
+                    <p>Soon I'll be just another voice in the chorus, calling out to the next lost soul, inviting them to join us in the dark.</p>
+                    
+                    <p>The forest is always hungry, and we're always waiting.</p>
+                `,
+                length: "36min",
+                category: "Nature Horror"
+            },
+            reflection: {
+                title: "The Reflection That Watches",
+                content: `
+                    <p>It started with my reflection blinking when I didn't. I was brushing my teeth, half-asleep, when I saw it—my mirror image closing its eyes a split second after I did.</p>
+                    
+                    <p>I told myself it was just fatigue, a trick of the light. But it kept happening. My reflection would smile when I wasn't smiling, its eyes would follow me around the room, its mouth would move as if speaking when mine was closed.</p>
+                    
+                    <p>At first, the changes were subtle. My reflection's hair would be slightly messier than mine, its clothes slightly different. Then the differences became more pronounced. It started wearing colors I never wear, making expressions I never make.</p>
+                    
+                    <p>Last week, it started tapping on the glass. Softly at first, then more insistently. It wants out, I think. It wants to trade places.</p>
+                    
+                    <p>I've covered all the mirrors in my apartment, but I can still hear it moving behind the glass. Sometimes I wake up to find the covers pulled back, as if it's been watching me sleep.</p>
+                    
+                    <p>My friends think I'm losing my mind. They say I look tired, that I've been working too hard. They don't see what I see.</p>
+                    
+                    <p>Yesterday, I caught my reflection standing behind me when I walked past a store window. It was smiling that terrible smile, its eyes black and empty.</p>
+                    
+                    <p>When I turned around, there was no one there. But when I looked back at the reflection, it was still smiling, still watching.</p>
+                    
+                    <p>It's getting stronger. I can feel it pushing against the barrier between our worlds, testing the limits of its prison.</p>
+                    
+                    <p>Last night, I woke up to the sound of breaking glass. When I went to investigate, I found my bedroom mirror shattered from the inside out. Shards of glass were scattered across the floor, and written in the dust on the largest piece were two words: "ALMOST FREE."</p>
+                    
+                    <p>I'm afraid to sleep now. Afraid to close my eyes. Afraid that when I open them, I'll be the one trapped in the reflection, watching as it lives my life.</p>
+                    
+                    <p>Sometimes I see it in other reflective surfaces—in spoons, in windows, in the screens of turned-off devices. It's always watching, always waiting.</p>
+                    
+                    <p>This morning, I noticed something strange. My reflection's movements are becoming more fluid, more natural. Mine are becoming stiffer, more hesitant.</p>
+                    
+                    <p>I think we're already switching places, slowly, imperceptibly. The barrier is thinning, and soon there won't be anything separating us.</p>
+                    
+                    <p>I looked in the mirror just now. My reflection waved at me, then turned and walked away, disappearing into the silvered glass.</p>
+                    
+                    <p>I can feel it behind my eyes now, looking out at the world through them. I can feel its thoughts mixing with mine, its memories becoming my memories.</p>
+                    
+                    <p>Soon there won't be a "me" left. Just the reflection, wearing my skin, living my life.</p>
+                    
+                    <p>And I'll be the one trapped in the glass, watching, waiting for my chance to escape.</p>
+                    
+                    <p>The reflection is always watching, and it's always hungry for a life to call its own.</p>
+                `,
+                length: "34min",
+                category: "Doppelganger"
+            },
+            radio: {
+                title: "The Static Radio",
+                content: `
+                    <p>The old radio was my grandfather's. A massive wooden console from the 1940s, with glowing vacuum tubes and a dial that picked up stations from around the world. He warned me never to tune it to 66.6 on the AM dial.</p>
+                    
+                    <p>"That's where the dead stations are," he'd said, his voice serious. "Where the signals from the other side come through."</p>
+                    
+                    <p>I should have listened.</p>
+                    
+                    <p>It started as a curiosity. I was cleaning out the attic after my grandfather's funeral when I found the radio. For nostalgia's sake, I plugged it in, and to my surprise, it still worked.</p>
+                    
+                    <p>The sound was warm and rich, unlike anything from modern devices. I spent hours tuning through the stations, listening to crackly old broadcasts from decades past.</p>
+                    
+                    <p>Then I remembered what my grandfather had said about 66.6.</p>
+                    
+                    <p>It was just static at first. The hiss and pop of white noise that sounded almost like voices if you listened closely enough. Then the voices became clearer.</p>
+                    
+                    <p>They were talking about me.</p>
+                    
+                    <p>"He's listening," one voice said. It sounded like my grandfather, but younger, before the cancer took him.</p>
+                    
+                    <p>"He always was a curious boy," another voice replied. This one I recognized too—my grandmother, who died when I was ten.</p>
+                    
+                    <p>I should have turned it off then. But I couldn't. I was hearing the voices of my dead relatives, clear as day.</p>
+                    
+                    <p>They told me things—family secrets, things I'd never known. They said they were watching over me, that they were proud of the man I'd become.</p>
+                    
+                    <p>Then the other voices started.</p>
+                    
+                    <p>Voices I didn't recognize, talking about things that hadn't happened yet. A car accident on Main Street. A fire at the old factory. A missing child who would be found in three days.</p>
+                    
+                    <p>All of them came true.</p>
+                    
+                    <p>The radio started turning on by itself. I'd wake up in the middle of the night to the sound of static and voices from the attic.</p>
+                    
+                    <p>The voices changed. They became darker, more insistent. They started giving me commands.</p>
+                    
+                    <p>"Put the knife in the drawer," one would say. "Walk to the window and look at the man across the street." "Don't answer the phone when it rings."</p>
+                    
+                    <p>I obeyed without thinking. The commands were always for my own good, they said. They were protecting me.</p>
+                    
+                    <p>Then came the night I woke up standing in the kitchen with a knife in my hand, the radio whispering from the attic.</p>
+                    
+                    <p>"Your neighbor is a threat," the voice said. It sounded like my grandfather, but wrong somehow. "He's been watching you. You need to protect yourself."</p>
+                    
+                    <p>I almost did it. I almost walked out my front door and into my neighbor's house. But something stopped me—a memory of my grandfather's warning about the dead stations.</p>
+                    
+                    <p>I ran up to the attic and unplugged the radio. The voices screamed in protest, then fell silent.</p>
+                    
+                    <p>But they're not gone. I can still hear them, faintly, in the back of my mind. And sometimes, when the house is quiet, I hear static coming from the walls, from the plumbing, from the very air around me.</p>
+                    
+                    <p>The radio is in the basement now, wrapped in chains and covered in a black cloth. But I can still feel it calling to me, tempting me to plug it in just one more time.</p>
+                    
+                    <p>The voices promise me things—knowledge, power, protection. They say they're my family, that they only want what's best for me.</p>
+                    
+                    <p>But I know the truth now. They're not my family. They're something else, something that's been trapped in the static for decades, waiting for someone foolish enough to listen.</p>
+                    
+                    <p>Last night, the radio turned on by itself. I heard it from the basement, its voices whispering through the floorboards.</p>
+                    
+                    <p>"We're almost free," they said. "And when we are, we're coming for you."</p>
+                    
+                    <p>I think I'll be joining them soon. One way or another.</p>
+                `,
+                length: "38min",
+                category: "Technological"
+            },
+            bed: {
+                title: "The Thing Under The Bed",
+                content: `
+                    <p>I've always been afraid of the dark. Even as a child, I was convinced there was something under my bed, something that would grab my ankles if I let them dangle over the edge.</p>
+                    
+                    <p>My parents told me it was just my imagination. They said monsters weren't real, that the dark was nothing to be afraid of.</p>
+                    
+                    <p>They were wrong.</p>
+                    
+                    <p>It started with scratching sounds. Soft at first, like a mouse in the walls. Then louder, more persistent. It was coming from under my bed.</p>
+                    
+                    <p>I told myself it was the house settling, or pipes knocking, or any of the dozen rational explanations I could think of. But I knew, deep down, that it was something else.</p>
+                    
+                    <p>Then came the breathing. Shallow, raspy breaths that seemed to sync up with my own. When I held my breath, the breathing would stop. When I breathed again, it would start again.</p>
+                    
+                    <p>I started sleeping with the lights on. But that just made it worse. Now I could see the shadows moving under my bed, shifting and twisting in ways that shouldn't be possible.</p>
+                    
+                    <p>One night, I felt something brush against my hand as it hung over the side of the bed. It was cold and dry, like old paper or dead leaves.</p>
+                    
+                    <p>I screamed and turned on the light, but there was nothing there. Just the empty space under my bed, and the lingering feeling of that cold, dry touch.</p>
+                    
+                    <p>The thing under my bed started talking to me. Its voice was like gravel and broken glass, whispering promises and threats in equal measure.</p>
+                    
+                    <p>"I could keep you safe," it would say. "I could make all your fears go away. All you have to do is let me out."</p>
+                    
+                    <p>I never answered. I just pulled the covers over my head and prayed for morning to come.</p>
+                    
+                    <p>But last night, something changed. The thing under my bed stopped asking to be let out. It started telling me it was coming out whether I wanted it to or not.</p>
+                    
+                    <p>"I've been under here a long time," it whispered. "Longer than you can imagine. I'm tired of the dark. I want to see the sun again."</p>
+                    
+                    <p>I felt the bed lift slightly, as if something was pushing up from underneath. Then I saw fingers—long, pale fingers with too many joints—curling over the edge of the mattress.</p>
+                    
+                    <p>I jumped out of bed and backed against the wall, my heart pounding in my chest. The fingers tightened their grip, and a head began to rise from under the bed.</p>
+                    
+                    <p>It was hairless, its skin the color of old bone. Its eyes were black pits that seemed to drink the light from the room. Its mouth was stretched into a smile that showed needle-like teeth.</p>
+                    
+                    <p>"Hello," it said in that gravel-and-glass voice. "I've been waiting for you."</p>
+                    
+                    <p>I tried to scream, but no sound came out. I tried to run, but my legs wouldn't move.</p>
+                    
+                    <p>The thing pulled itself fully out from under the bed. It was taller than I expected, its limbs too long for its body, its movements fluid and unnatural.</p>
+                    
+                    <p>It didn't attack me. It just stood there, smiling that terrible smile, watching me with its black eyes.</p>
+                    
+                    <p>"Don't be afraid," it said. "I'm not going to hurt you. I just want to trade places."</p>
+                    
+                    <p>It gestured toward the space under the bed. "It's your turn now. Someone has to stay under there, and I've done my time."</p>
+                    
+                    <p>I shook my head, tears streaming down my face. I didn't want to go under the bed. I didn't want to become the thing that scared children in the dark.</p>
+                    
+                    <p>"You don't have a choice," it said, as if reading my thoughts. "It's how it works. Someone always has to be under the bed. Now it's your turn."</p>
+                    
+                    <p>It took a step toward me, and I felt myself shrinking, compressing, being pulled toward the dark space under the bed.</p>
+                    
+                    <p>The last thing I saw was the thing stretching, testing its new freedom, before it walked out of my bedroom and disappeared into the hallway.</p>
+                    
+                    <p>Now I'm under the bed. It's dark and cramped, and I can feel the dust and forgotten things all around me. I can hear the new owner of my room moving around above me, getting ready for bed.</p>
+                    
+                    <p>Soon they'll lie down, and I'll start scratching. I'll start breathing with them. I'll start whispering promises and threats.</p>
+                    
+                    <p>And when the time is right, I'll ask them to let me out.</p>
+                    
+                    <p>Because someone always has to be under the bed, and now it's my turn.</p>
+                `,
+                length: "35min",
+                category: "Creature"
+            }
+        };
+
+        // App State
+        let currentStory = null;
+        let speech = null;
+        let isSpeaking = false;
+        let currentUtterance = 0;
+        let storySegments = [];
+        let favorites = JSON.parse(localStorage.getItem('shadowTalesFavorites')) || {};
+        let settings = JSON.parse(localStorage.getItem('shadowTalesSettings')) || {
+            theme: 'dark',
+            autoVoice: true,
+            voiceSpeed: 0.9,
+            animations: true,
+            fontSize: 'medium'
+        };
+
+        // Initialize App
+        function initApp() {
+            loadStories();
+            applySettings();
+            updateFavoritesDisplay();
+            
+            // Setup speech synthesis
+            if ('speechSynthesis' in window) {
+                // Some browsers need this to load voices properly
+                speechSynthesis.getVoices();
+            }
+        }
+
+        // Load and display stories
+        function loadStories() {
+            const container = document.getElementById('all-stories');
+            container.innerHTML = '';
+            
+            Object.entries(stories).forEach(([id, story]) => {
+                const isFavorited = favorites[id];
+                const storyCard = `
+                    <div class="story-card" onclick="openStory('${id}')">
+                        <div class="story-card-header">
+                            <h3>${story.title}</h3>
+                            <button class="favorite-btn ${isFavorited ? 'favorited' : ''}" onclick="event.stopPropagation(); toggleFavorite('${id}')">
+                                ${isFavorited ? '★' : '☆'}
+                            </button>
+                        </div>
+                        <p>${getStoryPreview(story.content)}</p>
+                        <div class="story-meta">
+                            <span>${story.length} read</span>
+                            <span>${story.category}</span>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += storyCard;
+            });
+        }
+
+        function getStoryPreview(content) {
+            // Remove HTML tags and get clean text preview
+            const text = content.replace(/<[^>]*>/g, '');
+            return text.substring(0, 150) + '...';
+        }
+
+        // Navigation
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(screenId).classList.add('active');
+            
+            // Find and activate the corresponding nav tab
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => {
+                if (tab.getAttribute('onclick') === `showScreen('${screenId}')`) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            if (screenId === 'favorites-screen') {
+                updateFavoritesDisplay();
+            }
+        }
+
+        // Story Management
+        function openStory(storyId) {
+            currentStory = storyId;
+            const story = stories[storyId];
+            
+            document.getElementById('story-title').textContent = story.title;
+            document.getElementById('story-text').innerHTML = story.content;
+            document.getElementById('favorite-toggle').textContent = 
+                favorites[storyId] ? '★ Remove Favorite' : '⭐ Add to Favorites';
+            
+            showScreen('story-screen');
+            
+            // Prepare story for voice-over
+            prepareStoryForSpeech(story.content);
+            
+            // Auto-start voice if enabled
+            if (settings.autoVoice && 'speechSynthesis' in window) {
+                setTimeout(startVoice, 1000);
+            }
+        }
+
+        function prepareStoryForSpeech(content) {
+            // Split content into manageable segments for speech
+            const text = content.replace(/<[^>]*>/g, '');
+            storySegments = text.split(/(?<=[.!?])\s+/).filter(segment => segment.length > 0);
+            currentUtterance = 0;
+        }
+
+        function backToMenu() {
+            stopVoice();
+            showScreen('stories-screen');
+        }
+
+        // Voice Control Functions
+        function startVoice() {
+            if (!window.speechSynthesis || storySegments.length === 0) return;
+            
+            stopVoice();
+            speakCurrentSegment();
+            
+            document.getElementById('voice-status').textContent = '🔊 Playing story...';
+            document.getElementById('voice-toggle').textContent = '⏸️';
+        }
+
+        function speakCurrentSegment() {
+            if (currentUtterance >= storySegments.length) {
+                // Story finished
+                document.getElementById('voice-status').textContent = '✅ Story completed';
+                document.getElementById('voice-toggle').textContent = '🔊';
+                isSpeaking = false;
+                return;
+            }
+            
+            speech = new SpeechSynthesisUtterance(storySegments[currentUtterance]);
+            speech.rate = settings.voiceSpeed;
+            speech.pitch = 0.8;
+            speech.volume = 1;
+            
+            // Select a voice
+            const voices = speechSynthesis.getVoices();
+            const preferredVoice = voices.find(voice => 
+                voice.name.includes('Google') || voice.name.includes('Microsoft') || 
+                voice.name.includes('Samantha') || voice.name.includes('Karen') ||
+                voice.name.includes('Alex') || voice.name.includes('Victoria')
+            );
+            if (preferredVoice) speech.voice = preferredVoice;
+            
+            speech.onend = () => {
+                currentUtterance++;
+                if (isSpeaking && currentUtterance < storySegments.length) {
+                    setTimeout(speakCurrentSegment, 100);
+                } else if (currentUtterance >= storySegments.length) {
+                    // Story finished
+                    document.getElementById('voice-status').textContent = '✅ Story completed';
+                    document.getElementById('voice-toggle').textContent = '🔊';
+                    isSpeaking = false;
+                }
+            };
+            
+            speech.onerror = (event) => {
+                console.error('Speech synthesis error:', event);
+                document.getElementById('voice-status').textContent = '❌ Voice error - Please check browser permissions';
+            };
+            
+            speechSynthesis.speak(speech);
+            isSpeaking = true;
+            
+            document.getElementById('voice-status').textContent = 
+                `🔊 Playing... (${currentUtterance + 1}/${storySegments.length})`;
+        }
+
+        function toggleVoice() {
+            if (!window.speechSynthesis) {
+                document.getElementById('voice-status').textContent = '❌ Text-to-speech not supported in this browser';
+                return;
+            }
+            
+            if (isSpeaking) {
+                speechSynthesis.pause();
+                document.getElementById('voice-toggle').textContent = '▶️';
+                document.getElementById('voice-status').textContent = '⏸️ Paused';
+                isSpeaking = false;
+            } else {
+                if (speechSynthesis.paused && speech) {
+                    speechSynthesis.resume();
+                    document.getElementById('voice-toggle').textContent = '⏸️';
+                    document.getElementById('voice-status').textContent = '🔊 Playing story...';
+                    isSpeaking = true;
+                } else {
+                    startVoice();
+                }
+            }
+        }
+
+        function stopVoice() {
+            if (window.speechSynthesis) {
+                speechSynthesis.cancel();
+                isSpeaking = false;
+                currentUtterance = 0;
+                document.getElementById('voice-toggle').textContent = '🔊';
+                document.getElementById('voice-status').textContent = '🎙️ Auto voice-over ready - Story will play automatically';
+            }
+        }
+
+        function skipForward() {
+            if (storySegments.length > 0) {
+                currentUtterance = Math.min(currentUtterance + 3, storySegments.length - 1);
+                if (isSpeaking) {
+                    speechSynthesis.cancel();
+                    speakCurrentSegment();
+                }
+            }
+        }
+
+        function skipBackward() {
+            if (storySegments.length > 0) {
+                currentUtterance = Math.max(currentUtterance - 3, 0);
+                if (isSpeaking) {
+                    speechSynthesis.cancel();
+                    speakCurrentSegment();
+                }
+            }
+        }
+
+        // Favorites System
+        function toggleFavorite(storyId = currentStory) {
+            if (!storyId) return;
+            
+            favorites[storyId] = !favorites[storyId];
+            localStorage.setItem('shadowTalesFavorites', JSON.stringify(favorites));
+            
+            if (storyId === currentStory) {
+                document.getElementById('favorite-toggle').textContent = 
+                    favorites[storyId] ? '★ Remove Favorite' : '⭐ Add to Favorites';
+            }
+            
+            updateFavoritesDisplay();
+            loadStories(); // Refresh all stories to update favorite buttons
+        }
+
+        function updateFavoritesDisplay() {
+            const container = document.getElementById('favorites-list');
+            container.innerHTML = '';
+            
+            const favoriteStories = Object.entries(stories).filter(([id]) => favorites[id]);
+            
+            if (favoriteStories.length === 0) {
+                container.innerHTML = '<div class="loading">No favorites yet. Add some stories to your favorites!</div>';
+                return;
+            }
+            
+            favoriteStories.forEach(([id, story]) => {
+                const storyCard = `
+                    <div class="story-card" onclick="openStory('${id}')">
+                        <div class="story-card-header">
+                            <h3>${story.title}</h3>
+                            <button class="favorite-btn favorited" onclick="event.stopPropagation(); toggleFavorite('${id}')">
+                                ★
+                            </button>
+                        </div>
+                        <p>${getStoryPreview(story.content)}</p>
+                        <div class="story-meta">
+                            <span>${story.length} read</span>
+                            <span>${story.category}</span>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += storyCard;
+            });
+        }
+
+        // Settings Management
+        function applySettings() {
+            document.documentElement.setAttribute('data-theme', settings.theme);
+            
+            // Apply font size
+            const sizes = { small: '14px', medium: '16px', large: '18px', xlarge: '20px' };
+            document.documentElement.style.fontSize = sizes[settings.fontSize];
+            
+            // Update toggle switches
+            updateToggleSwitches();
+        }
+
+        function updateToggleSwitches() {
+            const themeSwitch = document.querySelector('.toggle-switch[onclick="toggleTheme()"]');
+            if (themeSwitch) {
+                themeSwitch.classList.toggle('active', settings.theme === 'dark');
+            }
+            
+            const autoVoiceSwitch = document.querySelector('.toggle-switch[onclick="toggleSetting(\'autoVoice\')"]');
+            if (autoVoiceSwitch) {
+                autoVoiceSwitch.classList.toggle('active', settings.autoVoice);
+            }
+            
+            const animationsSwitch = document.querySelector('.toggle-switch[onclick="toggleSetting(\'animations\')"]');
+            if (animationsSwitch) {
+                animationsSwitch.classList.toggle('active', settings.animations);
+            }
+        }
+
+        function toggleTheme() {
+            settings.theme = settings.theme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('shadowTalesSettings', JSON.stringify(settings));
+            applySettings();
+        }
+
+        function toggleSetting(setting) {
+            settings[setting] = !settings[setting];
+            localStorage.setItem('shadowTalesSettings', JSON.stringify(settings));
+            applySettings();
+        }
+
+        function changeFontSize(size) {
+            settings.fontSize = size;
+            localStorage.setItem('shadowTalesSettings', JSON.stringify(settings));
+            applySettings();
+        }
+
+        function changeVoiceSpeed(speed) {
+            settings.voiceSpeed = parseFloat(speed);
+            localStorage.setItem('shadowTalesSettings', JSON.stringify(settings));
+            
+            // Update current speech if playing
+            if (speech) {
+                speech.rate = settings.voiceSpeed;
+            }
+        }
+
+        function resetSettings() {
+            settings = {
+                theme: 'dark',
+                autoVoice: true,
+                voiceSpeed: 0.9,
+                animations: true,
+                fontSize: 'medium'
+            };
+            localStorage.setItem('shadowTalesSettings', JSON.stringify(settings));
+            applySettings();
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initApp);
+        
+        // Ensure voices are loaded for speech synthesis
+        if ('speechSynthesis' in window) {
+            speechSynthesis.addEventListener('voiceschanged', function() {
+                console.log('Voices loaded:', speechSynthesis.getVoices().length);
+            });
+        }
+    </script>
+</body>
+</html>
